@@ -516,8 +516,8 @@ public class OneInputStreamTaskTest extends TestLogger {
 
         testHarness.waitForInputProcessing();
         // we should not yet see the barrier, only the two elements from non-blocked input
-        //TestHarnessUtil.assertOutputEquals(
-                "Output was not correct.", expectedOutput, testHarness.getOutput());
+//        TestHarnessUtil.assertOutputEquals(
+//                "Output was not correct.", expectedOutput, testHarness.getOutput());
 
         // Now give a later barrier to all inputs, this should unblock the first channel
         testHarness.processEvent(
@@ -543,8 +543,8 @@ public class OneInputStreamTaskTest extends TestLogger {
 
         testHarness.waitForInputProcessing();
 
-        //TestHarnessUtil.assertOutputEquals(
-                "Output was not correct.", expectedOutput, testHarness.getOutput());
+//        //TestHarnessUtil.assertOutputEquals(
+//        "Output was not correct.", expectedOutput, testHarness.getOutput());
 
         // Then give the earlier barrier, these should be ignored
         testHarness.processEvent(
