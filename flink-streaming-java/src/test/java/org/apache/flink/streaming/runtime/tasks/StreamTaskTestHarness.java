@@ -453,7 +453,6 @@ public class StreamTaskTestHarness<OUT> {
 		}, "dummy");
 	}
 
-
 	public void inputPauseMail() throws Exception{
 		final MailboxProcessor mailboxProcessor = taskThread.task.mailboxProcessor;
 		final MailboxExecutor mailboxExecutor = mailboxProcessor.getMainMailboxExecutor();
@@ -468,7 +467,9 @@ public class StreamTaskTestHarness<OUT> {
 		mailboxExecutor.execute(() -> {
 			mailboxProcessor.isPaused = false;
 		}, "resume");
-	}/**
+	}
+
+	/**
      * Notifies all input channels on all input gates that no more input will arrive. This will
      * usually make the Task exit from his internal loop.
      */

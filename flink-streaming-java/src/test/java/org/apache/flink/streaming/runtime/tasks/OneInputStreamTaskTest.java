@@ -999,7 +999,8 @@ public class OneInputStreamTaskTest extends TestLogger {
 
         @Override
         public String map(String value) throws Exception {
-            System.out.println("process input: "+value);return value;
+            System.out.println("process input: " + value);
+            return value;
         }
     }
 
