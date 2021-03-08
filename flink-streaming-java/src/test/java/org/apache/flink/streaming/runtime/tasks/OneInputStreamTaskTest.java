@@ -35,8 +35,6 @@ import org.apache.flink.metrics.Metric;
 import org.apache.flink.runtime.checkpoint.CheckpointMetaData;
 import org.apache.flink.runtime.checkpoint.CheckpointOptions;
 import org.apache.flink.runtime.checkpoint.TaskStateSnapshot;
-import org.apache.flink.runtime.io.network.api.CancelCheckpointMarker;
-import org.apache.flink.runtime.io.network.api.CheckpointBarrier;
 import org.apache.flink.runtime.jobgraph.OperatorID;
 import org.apache.flink.runtime.metrics.MetricNames;
 import org.apache.flink.runtime.metrics.NoOpMetricRegistry;
@@ -794,8 +792,6 @@ public class OneInputStreamTaskTest extends TestLogger {
         testHarness.waitForTaskCompletion();
     }
 
-
-
 	@Test
 	public void testPause() throws Exception {
 		final OneInputStreamTaskTestHarness<String, String> testHarness = new OneInputStreamTaskTestHarness<>(
@@ -833,27 +829,6 @@ public class OneInputStreamTaskTest extends TestLogger {
 		testHarness.waitForTaskCompletion();
 
 	}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
     static class WatermarkMetricOperator extends AbstractStreamOperator<String>
             implements OneInputStreamOperator<String, String> {
