@@ -447,29 +447,32 @@ public class StreamTaskTestHarness<OUT> {
     }
 
     public void inputDummyMail() throws Exception {
-		final MailboxProcessor mailboxProcessor = taskThread.task.mailboxProcessor;
-		final MailboxExecutor mailboxExecutor = mailboxProcessor.getMainMailboxExecutor();
-		mailboxExecutor.execute(() -> {
-		}, "dummy");
-	}
+        final MailboxProcessor mailboxProcessor = taskThread.task.mailboxProcessor;
+        final MailboxExecutor mailboxExecutor = mailboxProcessor.getMainMailboxExecutor();
+        mailboxExecutor.execute(() -> {}, "dummy");
+    }
 
-	public void inputPauseMail() throws Exception{
-		final MailboxProcessor mailboxProcessor = taskThread.task.mailboxProcessor;
-		final MailboxExecutor mailboxExecutor = mailboxProcessor.getMainMailboxExecutor();
-		mailboxExecutor.execute(() -> {
-			mailboxProcessor.isPaused = true;
-		}, "pause");
-	}
+    public void inputPauseMail() throws Exception {
+        final MailboxProcessor mailboxProcessor = taskThread.task.mailboxProcessor;
+        final MailboxExecutor mailboxExecutor = mailboxProcessor.getMainMailboxExecutor();
+        mailboxExecutor.execute(
+                () -> {
+                    mailboxProcessor.isPaused = true;
+                },
+                "pause");
+    }
 
-	public void inputResumeMail() throws Exception{
-		final MailboxProcessor mailboxProcessor = taskThread.task.mailboxProcessor;
-		final MailboxExecutor mailboxExecutor = mailboxProcessor.getMainMailboxExecutor();
-		mailboxExecutor.execute(() -> {
-			mailboxProcessor.isPaused = false;
-		}, "resume");
-	}
+    public void inputResumeMail() throws Exception {
+        final MailboxProcessor mailboxProcessor = taskThread.task.mailboxProcessor;
+        final MailboxExecutor mailboxExecutor = mailboxProcessor.getMainMailboxExecutor();
+        mailboxExecutor.execute(
+                () -> {
+                    mailboxProcessor.isPaused = false;
+                },
+                "resume");
+    }
 
-	/**
+    /**
      * Notifies all input channels on all input gates that no more input will arrive. This will
      * usually make the Task exit from his internal loop.
      */

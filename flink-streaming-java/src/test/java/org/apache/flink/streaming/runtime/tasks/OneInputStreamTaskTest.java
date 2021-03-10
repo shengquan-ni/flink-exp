@@ -792,43 +792,45 @@ public class OneInputStreamTaskTest extends TestLogger {
         testHarness.waitForTaskCompletion();
     }
 
-	@Test
-	public void testPause() throws Exception {
-		final OneInputStreamTaskTestHarness<String, String> testHarness = new OneInputStreamTaskTestHarness<>(
-			OneInputStreamTask::new,
-			2, 2,
-			BasicTypeInfo.STRING_TYPE_INFO, BasicTypeInfo.STRING_TYPE_INFO);
+    @Test
+    public void testPause() throws Exception {
+        final OneInputStreamTaskTestHarness<String, String> testHarness =
+                new OneInputStreamTaskTestHarness<>(
+                        OneInputStreamTask::new,
+                        2,
+                        2,
+                        BasicTypeInfo.STRING_TYPE_INFO,
+                        BasicTypeInfo.STRING_TYPE_INFO);
 
-		testHarness.setupOutputForSingletonOperatorChain();
+        testHarness.setupOutputForSingletonOperatorChain();
 
-		StreamConfig streamConfig = testHarness.getStreamConfig();
-		StreamMap<String, String> mapOperator = new StreamMap<>(new IdentityMap());
-		streamConfig.setStreamOperator(mapOperator);
-		streamConfig.setOperatorID(new OperatorID());
+        StreamConfig streamConfig = testHarness.getStreamConfig();
+        StreamMap<String, String> mapOperator = new StreamMap<>(new IdentityMap());
+        streamConfig.setStreamOperator(mapOperator);
+        streamConfig.setOperatorID(new OperatorID());
 
-		long initialTime = 0L;
+        long initialTime = 0L;
 
-		testHarness.invoke();
-		testHarness.waitForTaskRunning();
+        testHarness.invoke();
+        testHarness.waitForTaskRunning();
 
-		testHarness.processElement(new StreamRecord<>("test1", initialTime));
-		testHarness.processElement(new StreamRecord<>("test2", initialTime));
+        testHarness.processElement(new StreamRecord<>("test1", initialTime));
+        testHarness.processElement(new StreamRecord<>("test2", initialTime));
 
-		Thread.sleep(3000);
-		testHarness.inputPauseMail();
+        Thread.sleep(3000);
+        testHarness.inputPauseMail();
 
-		Thread.sleep(3000);
-		testHarness.processElement(new StreamRecord<>("test3", initialTime));
-		testHarness.processElement(new StreamRecord<>("test4", initialTime));
+        Thread.sleep(3000);
+        testHarness.processElement(new StreamRecord<>("test3", initialTime));
+        testHarness.processElement(new StreamRecord<>("test4", initialTime));
 
-		Thread.sleep(10000);
-		testHarness.inputResumeMail();
+        Thread.sleep(10000);
+        testHarness.inputResumeMail();
 
-		Thread.sleep(5000);
-		testHarness.endInput();
-		testHarness.waitForTaskCompletion();
-
-	}
+        Thread.sleep(5000);
+        testHarness.endInput();
+        testHarness.waitForTaskCompletion();
+    }
 
     static class WatermarkMetricOperator extends AbstractStreamOperator<String>
             implements OneInputStreamOperator<String, String> {
