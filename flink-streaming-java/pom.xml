@@ -95,6 +95,7 @@ under the License.
 			<scope>test</scope>
 			<type>test-jar</type>
 		</dependency>
+
 	</dependencies>
 
 	<build>

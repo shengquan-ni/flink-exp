@@ -21,6 +21,7 @@ import org.apache.flink.api.common.functions.JoinFunction;
 import org.apache.flink.api.common.typeinfo.BasicTypeInfo;
 import org.apache.flink.api.java.functions.KeySelector;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
+import org.apache.flink.streaming.api.graph.StreamGraph;
 import org.apache.flink.streaming.api.windowing.assigners.TumblingEventTimeWindows;
 import org.apache.flink.streaming.api.windowing.time.Time;
 import org.apache.flink.streaming.api.windowing.windows.TimeWindow;
@@ -36,10 +37,11 @@ public class JoinedStreamsTest {
     private KeySelector<String, String> keySelector;
     private TumblingEventTimeWindows tsAssigner;
     private JoinFunction<String, String, String> joinFunction;
+    private StreamExecutionEnvironment env;
 
     @Before
     public void setUp() {
-        StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
+        env = StreamExecutionEnvironment.getExecutionEnvironment();
         dataStream1 = env.fromElements("a1", "a2", "a3");
         dataStream2 = env.fromElements("a1", "a2");
         keySelector = element -> element;
@@ -60,6 +62,8 @@ public class JoinedStreamsTest {
                         .allowedLateness(lateness);
 
         withLateness.apply(joinFunction, BasicTypeInfo.STRING_TYPE_INFO);
+
+        StreamGraph graph = env.getStreamGraph();
 
         Assert.assertEquals(
                 lateness.toMilliseconds(),

@@ -221,7 +221,7 @@ public class StreamGraphGeneratorTest extends TestLogger {
 
         result.addSink(new DiscardingSink<>());
 
-        env.getStreamGraph();
+        StreamGraph graph = env.getStreamGraph();
 
         assertEquals(
                 BasicTypeInfo.INT_TYPE_INFO, outputTypeConfigurableOperation.getTypeInformation());
