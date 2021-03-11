@@ -1,3 +1,4 @@
+import org.apache.flink.api.common.ExecutionMode;
 import org.apache.flink.api.common.functions.JoinFunction;
 import org.apache.flink.api.java.DataSet;
 import org.apache.flink.api.java.ExecutionEnvironment;
@@ -8,6 +9,8 @@ public enum JoinSkewTest {
     ;
     public static void main(final String[] args) throws Exception{
         final ExecutionEnvironment env = ExecutionEnvironment.getExecutionEnvironment();
+        env.setParallelism(2);
+        env.getConfig().setExecutionMode(ExecutionMode.BATCH);
         DataSet<SkewedData> probeSource = env.readCsvFile("/home/avinash/Documents/datasets/81k-8k.csv")
                 .fieldDelimiter(",")
                 .includeFields("10000000000000").tupleType(SkewedData.class);
