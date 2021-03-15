@@ -19,6 +19,7 @@
 package org.apache.flink.runtime.io.network.api.writer;
 
 import org.apache.flink.core.io.IOReadableWritable;
+import org.apache.flink.runtime.operators.shipping.OutputEmitter;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
@@ -47,6 +48,13 @@ public final class ChannelSelectorRecordWriter<T extends IOReadableWritable>
 
         this.channelSelector = checkNotNull(channelSelector);
         this.channelSelector.setup(numberOfChannels);
+    }
+
+    public void changeFlow() {
+        if(channelSelector instanceof OutputEmitter) {
+            OutputEmitter tmp = (OutputEmitter)channelSelector;
+            tmp.changeFlow();
+        }
     }
 
     @Override

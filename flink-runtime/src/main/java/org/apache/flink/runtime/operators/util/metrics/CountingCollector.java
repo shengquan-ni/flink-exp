@@ -18,6 +18,7 @@
 package org.apache.flink.runtime.operators.util.metrics;
 
 import org.apache.flink.metrics.Counter;
+import org.apache.flink.runtime.operators.shipping.OutputCollector;
 import org.apache.flink.util.Collector;
 
 public class CountingCollector<OUT> implements Collector<OUT> {
@@ -27,6 +28,13 @@ public class CountingCollector<OUT> implements Collector<OUT> {
     public CountingCollector(Collector<OUT> collector, Counter numRecordsOut) {
         this.collector = collector;
         this.numRecordsOut = numRecordsOut;
+    }
+
+    public void changeFlow() {
+        if(collector instanceof OutputCollector) {
+            OutputCollector tmp = (OutputCollector)collector;
+            tmp.changeFlow();
+        }
     }
 
     @Override
