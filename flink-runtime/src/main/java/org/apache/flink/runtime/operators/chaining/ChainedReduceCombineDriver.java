@@ -93,8 +93,8 @@ public class ChainedReduceCombineDriver<T> extends ChainedDriver<T, T> {
         this.parent = parent;
         running = true;
 
-        //strategy = config.getDriverStrategy();
-        strategy = DriverStrategy.HASHED_PARTIAL_REDUCE;
+        strategy = config.getDriverStrategy();
+
         reducer = BatchTask.instantiateUserCode(config, userCodeClassLoader, ReduceFunction.class);
         FunctionUtils.setFunctionRuntimeContext(reducer, getUdfRuntimeContext());
     }
