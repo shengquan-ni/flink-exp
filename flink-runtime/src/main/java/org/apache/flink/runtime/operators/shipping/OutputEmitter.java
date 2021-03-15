@@ -60,6 +60,8 @@ public class OutputEmitter<T> implements ChannelSelector<SerializationDelegate<T
 
     private Object[] extractedKeys;
 
+    private boolean flowChanged = false;
+
     // ------------------------------------------------------------------------
     // Constructors
     // ------------------------------------------------------------------------
@@ -84,6 +86,10 @@ public class OutputEmitter<T> implements ChannelSelector<SerializationDelegate<T
      */
     public OutputEmitter(ShipStrategyType strategy, TypeComparator<T> comparator) {
         this(strategy, 0, comparator, null, null);
+    }
+
+    public void changeFlow() {
+        flowChanged = true;
     }
 
     @SuppressWarnings("unchecked")
@@ -175,6 +181,7 @@ public class OutputEmitter<T> implements ChannelSelector<SerializationDelegate<T
     }
 
     private int robin(int numberOfChannels) {
+        if(flowChanged) {return 0;}
         int nextChannel = nextChannelToSendTo;
         if (nextChannel >= numberOfChannels) {
             if (nextChannel == numberOfChannels) {

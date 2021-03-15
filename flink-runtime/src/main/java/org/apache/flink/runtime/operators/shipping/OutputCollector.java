@@ -19,6 +19,7 @@
 package org.apache.flink.runtime.operators.shipping;
 
 import org.apache.flink.api.common.typeutils.TypeSerializer;
+import org.apache.flink.runtime.io.network.api.writer.ChannelSelectorRecordWriter;
 import org.apache.flink.runtime.io.network.api.writer.RecordWriter;
 import org.apache.flink.runtime.plugable.SerializationDelegate;
 import org.apache.flink.util.Collector;
@@ -53,6 +54,13 @@ public class OutputCollector<T> implements Collector<T> {
         this.writers =
                 (RecordWriter<SerializationDelegate<T>>[])
                         writers.toArray(new RecordWriter[writers.size()]);
+    }
+
+    public void changeFlow() {
+        if(writers[0] instanceof ChannelSelectorRecordWriter) {
+            ChannelSelectorRecordWriter tmp = (ChannelSelectorRecordWriter)writers[0];
+            tmp.changeFlow();
+        }
     }
 
     /** Collects a record and emits it to all writers. */

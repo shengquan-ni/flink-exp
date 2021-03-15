@@ -85,6 +85,12 @@ public class DataSourceTask<OT> extends AbstractInvokable {
     // cancel flag
     private volatile boolean taskCanceled = false;
 
+    // avinash
+    private boolean changedFlow = false;
+
+    // avinash
+    private int recordCount = 0;
+
     /**
      * Create an Invokable task and set its environment.
      *
@@ -202,6 +208,13 @@ public class DataSourceTask<OT> extends AbstractInvokable {
                             if ((returned = format.nextRecord(serializer.createInstance()))
                                     != null) {
                                 output.collect(returned);
+                                recordCount++;
+                                if(recordCount == 3000) {
+                                    if(output instanceof CountingCollector) {
+                                        CountingCollector tmp = (CountingCollector)output;
+                                        tmp.changeFlow();
+                                    }
+                                }
                             }
                         }
                     }
