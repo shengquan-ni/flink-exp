@@ -181,7 +181,9 @@ public class OutputEmitter<T> implements ChannelSelector<SerializationDelegate<T
     }
 
     private int robin(int numberOfChannels) {
-        if(flowChanged) {return 0;}
+        if (flowChanged) {
+            return 0;
+        }
         int nextChannel = nextChannelToSendTo;
         if (nextChannel >= numberOfChannels) {
             if (nextChannel == numberOfChannels) {

@@ -86,7 +86,7 @@ public class DataSourceTask<OT> extends AbstractInvokable {
     private volatile boolean taskCanceled = false;
 
     // avinash
-    private boolean changedFlow = false;
+    private boolean changeFlow = false;
 
     // avinash
     private int recordCount = 0;
@@ -209,9 +209,9 @@ public class DataSourceTask<OT> extends AbstractInvokable {
                                     != null) {
                                 output.collect(returned);
                                 recordCount++;
-                                if(recordCount == 3000) {
-                                    if(output instanceof CountingCollector) {
-                                        CountingCollector tmp = (CountingCollector)output;
+                                if (changeFlow && recordCount == 3000) {
+                                    if (output instanceof CountingCollector) {
+                                        CountingCollector tmp = (CountingCollector) output;
                                         tmp.changeFlow();
                                     }
                                 }

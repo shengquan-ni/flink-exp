@@ -57,8 +57,8 @@ public class OutputCollector<T> implements Collector<T> {
     }
 
     public void changeFlow() {
-        if(writers[0] instanceof ChannelSelectorRecordWriter) {
-            ChannelSelectorRecordWriter tmp = (ChannelSelectorRecordWriter)writers[0];
+        if (writers[0] instanceof ChannelSelectorRecordWriter) {
+            ChannelSelectorRecordWriter tmp = (ChannelSelectorRecordWriter) writers[0];
             tmp.changeFlow();
         }
     }
