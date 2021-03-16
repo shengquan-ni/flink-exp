@@ -46,9 +46,7 @@ public class RoundRobinChannelSelector<T extends IOReadableWritable> implements 
     }
 
     @Override
-    public void changeFlow() {
-
-    }
+    public void changeFlow() {}
 
     @Override
     public boolean isBroadcast() {

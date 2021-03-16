@@ -24,6 +24,8 @@ import org.apache.flink.connector.file.sink.FileSink;
 import org.apache.flink.streaming.api.datastream.DataStream;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 import org.apache.flink.streaming.api.functions.sink.filesystem.StreamingFileSink;
+import org.apache.flink.streaming.api.operators.MailboxExecutor;
+import org.apache.flink.streaming.runtime.tasks.TaskStore;
 
 /**
  * Test program for the {@link StreamingFileSink} and {@link FileSink}.
@@ -44,7 +46,7 @@ public enum StreamGroupbySkewTest {
         env.setParallelism(2);
         env.getConfig().setExecutionMode(ExecutionMode.BATCH);
 
-        DataStream<Long> probeSource = env.fromSequence(1, 10).setParallelism(2);
+        DataStream<Long> probeSource = env.fromSequence(1, 500000).setParallelism(2);
 
         DataStream<MappedData> mapOutput =
                 probeSource
@@ -71,7 +73,16 @@ public enum StreamGroupbySkewTest {
         // mapOutput.output(new DiscardingOutputFormat<MappedData>());
         mapOutput.print();
         System.out.println(env.getExecutionPlan());
-        env.execute();
+        env.executeAsync();
+        while (TaskStore.sourceTask1 == null
+                || TaskStore.sourceTask2 == null
+                || TaskStore.sourceTask1.output == null
+                || TaskStore.sourceTask2.output == null) {}
+
+        Thread.sleep(2000);
+        System.out.println("CAME OUT OF THE LOOP");
+        MailboxExecutor executor = TaskStore.sourceTask1.mailboxProcessor.getMainMailboxExecutor();
+        executor.execute(() -> TaskStore.sourceTask1.output.executeChangeFlowCmd(), "skewCmd");
     }
 
     /** Use first field for buckets. */

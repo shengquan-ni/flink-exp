@@ -53,8 +53,6 @@ public interface ChannelSelector<T extends IOReadableWritable> {
      */
     boolean isBroadcast();
 
-    /***
-     * avinash
-     */
+    /** * avinash. */
     void changeFlow();
 }

@@ -52,11 +52,16 @@ import static org.apache.flink.util.Preconditions.checkNotNull;
 @Internal
 public class SourceOperatorStreamTask<T> extends StreamTask<T, SourceOperator<T, ?>> {
 
-    private AsyncDataOutputToOutput<T> output;
+    public AsyncDataOutputToOutput<T> output;
     private boolean isExternallyInducedSource;
 
     public SourceOperatorStreamTask(Environment env) throws Exception {
         super(env);
+        if (TaskStore.sourceTask1 == null) {
+            TaskStore.sourceTask1 = this;
+        } else {
+            TaskStore.sourceTask2 = this;
+        }
     }
 
     @Override
@@ -150,6 +155,7 @@ public class SourceOperatorStreamTask<T> extends StreamTask<T, SourceOperator<T,
         private final Output<StreamRecord<T>> output;
         @Nullable private final WatermarkGauge inputWatermarkGauge;
         private long producedCounter = 0;
+        public boolean changeFlowCmd = false;
 
         public AsyncDataOutputToOutput(
                 Output<StreamRecord<T>> output,
@@ -159,6 +165,11 @@ public class SourceOperatorStreamTask<T> extends StreamTask<T, SourceOperator<T,
 
             this.output = checkNotNull(output);
             this.inputWatermarkGauge = inputWatermarkGauge;
+        }
+
+        public void executeChangeFlowCmd() {
+            changeFlowCmd = true;
+            System.out.println("Changed the stream flow variable");
         }
 
         public void changeFlow() {
@@ -171,7 +182,7 @@ public class SourceOperatorStreamTask<T> extends StreamTask<T, SourceOperator<T,
         @Override
         public void emitRecord(StreamRecord<T> streamRecord) {
             producedCounter++;
-            if(producedCounter == 2) {
+            if (changeFlowCmd) {
                 changeFlow();
             }
             output.collect(streamRecord);

@@ -19,7 +19,6 @@
 package org.apache.flink.runtime.io.network.api.writer;
 
 import org.apache.flink.core.io.IOReadableWritable;
-import org.apache.flink.runtime.operators.shipping.OutputEmitter;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;

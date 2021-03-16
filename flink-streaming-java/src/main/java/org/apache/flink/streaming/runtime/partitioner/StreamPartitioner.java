@@ -59,9 +59,7 @@ public abstract class StreamPartitioner<T>
     }
 
     @Override
-    public void changeFlow() {
-
-    }
+    public void changeFlow() {}
 
     @Override
     public int hashCode() {

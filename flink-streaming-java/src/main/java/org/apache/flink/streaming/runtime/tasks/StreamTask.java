@@ -227,7 +227,7 @@ public abstract class StreamTask<OUT, OP extends StreamOperator<OUT>> extends Ab
 
     private final RecordWriterDelegate<SerializationDelegate<StreamRecord<OUT>>> recordWriter;
 
-    protected final MailboxProcessor mailboxProcessor;
+    public final MailboxProcessor mailboxProcessor;
 
     final MailboxExecutor mainMailboxExecutor;
 
