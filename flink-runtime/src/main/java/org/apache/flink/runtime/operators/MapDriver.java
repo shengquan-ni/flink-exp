@@ -102,6 +102,7 @@ public class MapDriver<IT, OT> implements Driver<MapFunction<IT, OT>, OT> {
                 numRecordsIn.inc();
                 output.collect(function.map(record));
             }
+            System.out.println("The total number of inputs in Map = " + numRecordsIn.getCount());
         }
     }
 

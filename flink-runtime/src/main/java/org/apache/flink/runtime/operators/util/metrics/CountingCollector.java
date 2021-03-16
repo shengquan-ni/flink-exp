@@ -31,8 +31,8 @@ public class CountingCollector<OUT> implements Collector<OUT> {
     }
 
     public void changeFlow() {
-        if(collector instanceof OutputCollector) {
-            OutputCollector tmp = (OutputCollector)collector;
+        if (collector instanceof OutputCollector) {
+            OutputCollector tmp = (OutputCollector) collector;
             tmp.changeFlow();
         }
     }

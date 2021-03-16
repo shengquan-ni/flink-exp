@@ -50,7 +50,8 @@ public enum GroupbySkewTest {
                 env.readCsvFile("/home/avinash/Documents/datasets/81k-8k.csv")
                         .fieldDelimiter(",")
                         .includeFields("10000000000000")
-                        .tupleType(SkewedData.class).setParallelism(2);
+                        .tupleType(SkewedData.class)
+                        .setParallelism(2);
 
         DataSet<MappedData> mapOutput =
                 probeSource
@@ -62,7 +63,8 @@ public enum GroupbySkewTest {
                                                 new MappedData(value.region(), "Continent", 1);
                                         return wc;
                                     }
-                                }).setParallelism(3)
+                                })
+                        .setParallelism(3)
                         .groupBy(0)
                         .sum(2);
 
