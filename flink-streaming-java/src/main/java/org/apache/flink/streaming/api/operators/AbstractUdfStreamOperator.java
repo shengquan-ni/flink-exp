@@ -53,6 +53,8 @@ public abstract class AbstractUdfStreamOperator<OUT, F extends Function>
     /** The user function. */
     protected final F userFunction;
 
+    protected long inputCounter = 0;
+
     /** Flag to prevent duplicate function.close() calls in close() and dispose(). */
     private transient boolean functionsClosed = false;
 
@@ -106,6 +108,8 @@ public abstract class AbstractUdfStreamOperator<OUT, F extends Function>
     public void close() throws Exception {
         super.close();
         functionsClosed = true;
+        System.out.println(
+                "The operator " + this.getOperatorName() + " has processed " + inputCounter);
         FunctionUtils.closeFunction(userFunction);
     }
 
