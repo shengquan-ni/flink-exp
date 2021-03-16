@@ -35,6 +35,8 @@ public class RebalancePartitioner<T> extends StreamPartitioner<T> {
 
     private int nextChannelToSendTo;
 
+    private boolean flowChanged = false;
+
     @Override
     public void setup(int numberOfChannels) {
         super.setup(numberOfChannels);
@@ -43,7 +45,13 @@ public class RebalancePartitioner<T> extends StreamPartitioner<T> {
     }
 
     @Override
+    public void changeFlow() {
+        flowChanged = true;
+    }
+
+    @Override
     public int selectChannel(SerializationDelegate<StreamRecord<T>> record) {
+        if (flowChanged) { return 0; }
         nextChannelToSendTo = (nextChannelToSendTo + 1) % numberOfChannels;
         return nextChannelToSendTo;
     }

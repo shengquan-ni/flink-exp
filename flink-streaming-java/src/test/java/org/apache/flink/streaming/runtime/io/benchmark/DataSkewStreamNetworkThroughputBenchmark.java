@@ -59,6 +59,11 @@ public class DataSkewStreamNetworkThroughputBenchmark extends StreamNetworkThrou
         }
 
         @Override
+        public void changeFlow() {
+
+        }
+
+        @Override
         public boolean isBroadcast() {
             return false;
         }

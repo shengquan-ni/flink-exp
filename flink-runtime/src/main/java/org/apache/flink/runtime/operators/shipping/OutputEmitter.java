@@ -88,6 +88,7 @@ public class OutputEmitter<T> implements ChannelSelector<SerializationDelegate<T
         this(strategy, 0, comparator, null, null);
     }
 
+    @Override
     public void changeFlow() {
         flowChanged = true;
     }

@@ -31,6 +31,7 @@ import org.apache.flink.streaming.api.operators.SourceOperator;
 import org.apache.flink.streaming.api.watermark.Watermark;
 import org.apache.flink.streaming.runtime.io.AbstractDataOutput;
 import org.apache.flink.streaming.runtime.io.PushingAsyncDataInput.DataOutput;
+import org.apache.flink.streaming.runtime.io.RecordWriterOutput;
 import org.apache.flink.streaming.runtime.io.StreamOneInputProcessor;
 import org.apache.flink.streaming.runtime.io.StreamTaskExternallyInducedSourceInput;
 import org.apache.flink.streaming.runtime.io.StreamTaskInput;
@@ -148,6 +149,7 @@ public class SourceOperatorStreamTask<T> extends StreamTask<T, SourceOperator<T,
 
         private final Output<StreamRecord<T>> output;
         @Nullable private final WatermarkGauge inputWatermarkGauge;
+        private long producedCounter = 0;
 
         public AsyncDataOutputToOutput(
                 Output<StreamRecord<T>> output,
@@ -159,8 +161,19 @@ public class SourceOperatorStreamTask<T> extends StreamTask<T, SourceOperator<T,
             this.inputWatermarkGauge = inputWatermarkGauge;
         }
 
+        public void changeFlow() {
+            if (output instanceof RecordWriterOutput) {
+                RecordWriterOutput tmp = (RecordWriterOutput) output;
+                tmp.changeFlow();
+            }
+        }
+
         @Override
         public void emitRecord(StreamRecord<T> streamRecord) {
+            producedCounter++;
+            if(producedCounter == 2) {
+                changeFlow();
+            }
             output.collect(streamRecord);
         }
 

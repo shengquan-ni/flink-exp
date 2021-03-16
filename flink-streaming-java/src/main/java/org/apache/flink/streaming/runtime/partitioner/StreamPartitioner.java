@@ -59,6 +59,11 @@ public abstract class StreamPartitioner<T>
     }
 
     @Override
+    public void changeFlow() {
+
+    }
+
+    @Override
     public int hashCode() {
         return Objects.hash(numberOfChannels);
     }

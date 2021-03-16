@@ -21,6 +21,7 @@ import org.apache.flink.annotation.Internal;
 import org.apache.flink.api.common.typeutils.TypeSerializer;
 import org.apache.flink.metrics.Gauge;
 import org.apache.flink.runtime.event.AbstractEvent;
+import org.apache.flink.runtime.io.network.api.writer.ChannelSelectorRecordWriter;
 import org.apache.flink.runtime.io.network.api.writer.RecordWriter;
 import org.apache.flink.runtime.plugable.SerializationDelegate;
 import org.apache.flink.streaming.api.operators.Output;
@@ -75,6 +76,13 @@ public class RecordWriterOutput<OUT> implements WatermarkGaugeExposingOutput<Str
         }
 
         this.streamStatusProvider = checkNotNull(streamStatusProvider);
+    }
+
+    public void changeFlow() {
+        if (recordWriter instanceof ChannelSelectorRecordWriter) {
+            ChannelSelectorRecordWriter tmp = (ChannelSelectorRecordWriter) recordWriter;
+            tmp.changeFlow();
+        }
     }
 
     @Override

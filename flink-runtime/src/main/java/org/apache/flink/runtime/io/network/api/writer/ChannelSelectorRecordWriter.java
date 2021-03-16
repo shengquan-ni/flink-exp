@@ -51,10 +51,7 @@ public final class ChannelSelectorRecordWriter<T extends IOReadableWritable>
     }
 
     public void changeFlow() {
-        if (channelSelector instanceof OutputEmitter) {
-            OutputEmitter tmp = (OutputEmitter) channelSelector;
-            tmp.changeFlow();
-        }
+        channelSelector.changeFlow();
     }
 
     @Override

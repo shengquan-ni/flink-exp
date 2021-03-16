@@ -52,4 +52,9 @@ public interface ChannelSelector<T extends IOReadableWritable> {
      * @return true if the selector is for broadcast mode.
      */
     boolean isBroadcast();
+
+    /***
+     * avinash
+     */
+    void changeFlow();
 }
