@@ -81,7 +81,9 @@ public enum StreamGroupbySkewTest {
 
         Thread.sleep(2000);
         System.out.println("CAME OUT OF THE LOOP");
+
         MailboxExecutor executor = TaskStore.sourceTask1.mailboxProcessor.getMainMailboxExecutor();
+        System.out.println("FLOW CHANGE START TIME = " + System.currentTimeMillis());
         executor.execute(() -> TaskStore.sourceTask1.output.executeChangeFlowCmd(), "skewCmd");
     }
 

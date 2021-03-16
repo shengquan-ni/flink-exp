@@ -169,7 +169,7 @@ public class SourceOperatorStreamTask<T> extends StreamTask<T, SourceOperator<T,
 
         public void executeChangeFlowCmd() {
             changeFlowCmd = true;
-            System.out.println("Changed the stream flow variable");
+            System.out.println("Changed the stream flow variable " + System.currentTimeMillis());
         }
 
         public void changeFlow() {
