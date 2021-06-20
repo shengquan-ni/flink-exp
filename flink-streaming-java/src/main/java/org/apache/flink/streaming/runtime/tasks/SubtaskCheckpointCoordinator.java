@@ -23,6 +23,7 @@ import org.apache.flink.runtime.checkpoint.CheckpointMetaData;
 import org.apache.flink.runtime.checkpoint.CheckpointMetricsBuilder;
 import org.apache.flink.runtime.checkpoint.CheckpointOptions;
 import org.apache.flink.runtime.checkpoint.channel.ChannelStateWriter;
+import org.apache.flink.runtime.recovery.AsyncLogWriter;
 import org.apache.flink.runtime.state.CheckpointStorageWorkerView;
 
 import java.io.Closeable;
@@ -63,6 +64,8 @@ public interface SubtaskCheckpointCoordinator extends Closeable {
             OperatorChain<?, ?> operatorChain,
             Supplier<Boolean> isRunning)
             throws Exception;
+
+    void registerLogWriter(AsyncLogWriter writer);
 
     /**
      * Notified on the task side once a distributed checkpoint has been completed.

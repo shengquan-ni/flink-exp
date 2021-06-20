@@ -68,7 +68,7 @@ abstract class FileLogStorage(logName: String) extends AbstractLogStorage(logNam
 
   def deleteFile(): Unit
 
-  private lazy val output = new ByteArrayWriter(getOutputStream)
+  private var output = new ByteArrayWriter(getOutputStream)
 
   private val globalSerializer = SerializeUtils.getSerializer
   private val loadedLogs = mutable.ArrayBuffer.empty[LogRecord]
@@ -95,6 +95,12 @@ abstract class FileLogStorage(logName: String) extends AbstractLogStorage(logNam
       getLogs
     }
     loadedWindows.toArray
+  }
+
+  override def truncateLog(): Unit = {
+    output.close()
+    deleteFile()
+    output = new ByteArrayWriter(getOutputStream)
   }
 
   override def getLogs: Iterable[LogRecord] = {

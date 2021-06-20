@@ -33,6 +33,8 @@ import org.apache.flink.runtime.execution.Environment;
 import org.apache.flink.runtime.io.network.api.CancelCheckpointMarker;
 import org.apache.flink.runtime.io.network.api.CheckpointBarrier;
 import org.apache.flink.runtime.jobgraph.OperatorID;
+import org.apache.flink.runtime.recovery.AbstractLogStorage;
+import org.apache.flink.runtime.recovery.AsyncLogWriter;
 import org.apache.flink.runtime.state.CheckpointStorageLocationReference;
 import org.apache.flink.runtime.state.CheckpointStorageWorkerView;
 import org.apache.flink.runtime.state.CheckpointStreamFactory;
@@ -102,6 +104,8 @@ class SubtaskCheckpointCoordinatorImpl implements SubtaskCheckpointCoordinator {
     /** Indicates if this registry is closed. */
     @GuardedBy("lock")
     private boolean closed;
+
+    private AsyncLogWriter writer = null;
 
     SubtaskCheckpointCoordinatorImpl(
             CheckpointStorageWorkerView checkpointStorage,
@@ -198,6 +202,11 @@ class SubtaskCheckpointCoordinatorImpl implements SubtaskCheckpointCoordinator {
                         taskName, env.getTaskInfo().getIndexOfThisSubtask(), checkpointStorage);
         writer.open();
         return writer;
+    }
+
+    @Override
+    public void registerLogWriter(AsyncLogWriter writer) {
+        this.writer = writer;
     }
 
     @Override
@@ -315,6 +324,9 @@ class SubtaskCheckpointCoordinatorImpl implements SubtaskCheckpointCoordinator {
         try {
             if (takeSnapshotSync(
                     snapshotFutures, metadata, metrics, options, operatorChain, isRunning)) {
+                //hack: we assume this checkpoint will be completed and be used eventually
+                //if the checkpoint is aborted. Our log will not be usable.
+                writer.takeCheckpoint();
                 finishAndReportAsync(snapshotFutures, metadata, metrics, isRunning);
                 //System.out.println(logName+" checkpoint progress: fully completed");
             } else {

@@ -399,6 +399,8 @@ public abstract class StreamTask<OUT, OP extends StreamOperator<OUT>> extends Ab
                         configuration.isUnalignedCheckpointsEnabled(),
                         this::prepareInputSnapshot);
 
+        subtaskCheckpointCoordinator.registerLogWriter(writer);
+
         // if the clock is not already set, then assign a default TimeServiceProvider
         if (timerService == null) {
             this.timerService = createTimerService("Time Trigger for " + getName());

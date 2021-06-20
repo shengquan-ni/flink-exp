@@ -22,6 +22,7 @@ import org.apache.flink.runtime.checkpoint.CheckpointMetaData;
 import org.apache.flink.runtime.checkpoint.CheckpointMetricsBuilder;
 import org.apache.flink.runtime.checkpoint.CheckpointOptions;
 import org.apache.flink.runtime.checkpoint.channel.ChannelStateWriter;
+import org.apache.flink.runtime.recovery.AsyncLogWriter;
 import org.apache.flink.runtime.state.CheckpointStorageWorkerView;
 import org.apache.flink.runtime.state.TestCheckpointStorageWorkerView;
 
@@ -80,6 +81,12 @@ public class TestSubtaskCheckpointCoordinator implements SubtaskCheckpointCoordi
             CheckpointMetricsBuilder checkpointMetrics,
             OperatorChain<?, ?> operatorChain,
             Supplier<Boolean> isRunning) {}
+
+
+    @Override
+    public void registerLogWriter(AsyncLogWriter writer) {
+        //do nothing
+    }
 
     @Override
     public void notifyCheckpointComplete(
