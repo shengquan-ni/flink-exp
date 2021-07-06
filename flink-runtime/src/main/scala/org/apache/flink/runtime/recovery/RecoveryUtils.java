@@ -17,7 +17,7 @@ public class RecoveryUtils {
     private static FileSystem hdfs;
     private static String hostAddress;
     public static int printLevel = NO_PRINT;
-    public static boolean isEnabled = true;
+    public static boolean isEnabled = false;
 
     public static FileSystem getHDFS(String addr){
         if(hdfs == null){
