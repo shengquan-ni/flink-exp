@@ -80,7 +80,8 @@ public class SourceStreamTask<
                 StreamTaskActionExecutor.synchronizedExecutor(lock));
         this.lock = Preconditions.checkNotNull(lock);
         this.sourceThread = new LegacySourceFunctionThread();
-
+        this.dataLogManager.setCheckpointLock(lock);
+        this.dpLogManager.setCheckpointLock(lock);
         getEnvironment().getMetricGroup().getIOMetricGroup().setEnableBusyTime(false);
     }
 

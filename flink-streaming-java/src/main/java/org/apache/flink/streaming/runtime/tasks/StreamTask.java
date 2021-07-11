@@ -101,6 +101,7 @@ import org.apache.flink.streaming.util.recovery.FutureWrapper;
 import org.apache.flink.streaming.util.recovery.MailResolver;
 import org.apache.flink.runtime.recovery.StepCursor;
 import org.apache.flink.runtime.recovery.RecoveryUtils;
+import org.apache.flink.streaming.util.recovery.MemoryStorage;
 import org.apache.flink.util.ExceptionUtils;
 import org.apache.flink.util.FlinkException;
 import org.apache.flink.util.InstantiationUtil;
@@ -354,19 +355,61 @@ public abstract class StreamTask<OUT, OP extends StreamOperator<OUT>> extends Ab
         TaskInfo info = getEnvironment().getTaskInfo();
         logName = "exampleJob-"+id.substring(id.length()-4)+"-"+info.getIndexOfThisSubtask();
         Map<String, String> globalArgs = environment.getExecutionConfig().getGlobalJobParameters().toMap();
-        AbstractLogStorage storage;
+        AbstractLogStorage storage = new EmptyLogStorage(logName);
         if(globalArgs.containsKey("enable-logging")){
             RecoveryUtils.isEnabled = Boolean.parseBoolean(globalArgs.get("enable-logging"));
+            System.out.println("enable-logging = "+globalArgs.get("enable-logging"));
+            if(RecoveryUtils.isEnabled) {
+                if(globalArgs.containsKey("storage-type")) {
+                    String t = globalArgs.get("storage-type");
+                    if(t.equals("mem")){
+                        storage = new MemoryStorage(logName);
+                    }else if(t.equals("local")){
+                        storage = new LocalDiskLogStorage(logName);
+                    }
+                    else if (globalArgs.containsKey("hdfs-log-storage")) {
+                        storage = new HDFSLogStorage(logName, globalArgs.get("hdfs-log-storage"));
+                        System.out.println(
+                                "hdfs-log-storage = " + globalArgs.get("hdfs-log-storage"));
+                    } else {
+                        throw new RuntimeException("hdfs storage without a path1!!!!");
+                    }
+                }
+            }
+            if(globalArgs.containsKey("clear-old-log")){
+                storage.clear();
+            }
+        }else{
+            if(System.getProperty("enableLogging")!=null && System.getProperty("enableLogging").equals("true")){
+                RecoveryUtils.isEnabled = true;
+                System.out.println("enableLogging = true");
+                if(storage instanceof EmptyLogStorage){
+                    if(System.getProperty("storageType") != null) {
+                        String t = System.getProperty("storageType");
+                        if(t.equals("mem")){
+                            storage = new MemoryStorage(logName);
+                        }else if(t.equals("local")){
+                            storage = new LocalDiskLogStorage(logName);
+                        }else if(System.getProperty("hdfsLogStorage") != null){
+                            storage = new HDFSLogStorage(logName, System.getProperty("hdfsLogStorage"));
+                            System.out.println("hdfsLogStorage = "+System.getProperty("hdfsLogStorage"));
+                        }else{
+                            throw new RuntimeException("hdfs storage without a path2!!!!");
+                        }
+                    }
+                }
+            }
+            if(System.getProperty("clearOldLog")!=null && System.getProperty("clearOldLog").equals("true")){
+                storage.clear();
+            }
+            if(System.getProperty("logLevel") != null){
+                RecoveryUtils.printLevel = Integer.parseInt(System.getProperty("logLevel"));
+                System.out.println("logLevel = "+System.getProperty("logLevel"));
+            }
         }
         if(globalArgs.containsKey("print-level")){
             RecoveryUtils.printLevel = Integer.parseInt(globalArgs.get("print-level"));
-        }
-        if(!RecoveryUtils.isEnabled){
-            storage = new EmptyLogStorage(logName);
-        }else if(globalArgs.containsKey("hdfs-log-storage")){
-            storage = new HDFSLogStorage(logName, globalArgs.get("hdfs-log-storage"));
-        }else{
-            storage = new LocalDiskLogStorage(logName);
+            System.out.println("print-level = "+globalArgs.get("print-level"));
         }
         writer = new AsyncLogWriter(storage);
         stepCursor = new StepCursor(storage.getStepCursor(), writer);
@@ -450,11 +493,10 @@ public abstract class StreamTask<OUT, OP extends StreamOperator<OUT>> extends Ab
 //        });
         dpLogManager = new DPLogManager(writer, mailResolver, stepCursor);
         dataLogManager = new DataLogManager(writer, stepCursor);
-        mailboxProcessor.registerLogManager(dpLogManager);
         if(RecoveryUtils.isEnabled){
             dataLogManager.enable();
         }
-        System.out.println("started "+logName+" at "+System.currentTimeMillis());
+        System.out.println("started "+logName+" at "+System.currentTimeMillis()+"recovery mode = "+!stepCursor.isRecoveryCompleted());
         environment.getMetricGroup().getIOMetricGroup().setEnableBusyTime(true);
     }
 
@@ -648,6 +690,7 @@ public abstract class StreamTask<OUT, OP extends StreamOperator<OUT>> extends Ab
     }
 
     void executeRestore() throws Exception {
+        mailboxProcessor.registerLogManager(dpLogManager);
         if (isRunning) {
             LOG.debug("Re-restore attempt rejected.");
             return;

@@ -246,7 +246,9 @@ public class InternalTimerServiceImpl<K, N> implements InternalTimerService<N> {
             long nextTriggerTime = oldHead != null ? oldHead.getTimestamp() : Long.MAX_VALUE;
             // check if we need to re-schedule our timer to earlier
             if (time < nextTriggerTime) {
-                writer.addLogRecord(new AbstractLogStorage.TimerStart(time, cursor.getCursor()));
+                if(writer != null){
+                    writer.addLogRecord(new AbstractLogStorage.TimerStart(time, cursor.getCursor()));
+                }
                 afterAddTimeToQueue(time);
             }
         }

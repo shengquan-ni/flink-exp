@@ -14,6 +14,13 @@ class DPLogManager(logWriter: AsyncLogWriter, mailResolver: MailResolver, val st
   val orderingManager = new FIFOManager[Mail, String]((s, m) => {
       controlQueue.enqueue(m)
   })
+  private var checkpointLock:AnyRef = _
+  def setCheckpointLock(obj:AnyRef): Unit = {
+    checkpointLock = obj
+  }
+
+  def getCheckpointLock:AnyRef = checkpointLock
+
 
   // For recovery, only need to replay control messages, and then it's done
   logWriter.storage.getLogs.foreach {

@@ -375,7 +375,6 @@ public class StreamSourceContexts {
 
         private DPLogManager dpLogManager;
         private FutureWrapper isPausedFuture;
-        private Object stepCursor;
 
         /**
          * Create a watermark context.
@@ -412,26 +411,22 @@ public class StreamSourceContexts {
                 this.dpLogManager = new DPLogManager(null,null,new StepCursor(0L, null));
             }
             this.isPausedFuture = isPausedFuture;
-            this.stepCursor = dpLogManager.stepCursor();
             scheduleNextIdleDetectionTask();
         }
 
         @Override
         public void collect(T element) {
             // first acquire stepCursor lock to avoid deadlock'
-            synchronized (stepCursor) {
                 synchronized (checkpointLock) {
                     if (dpLogManager.isEnabled()) {
                         dpLogManager.recoverControl();
                     }
                 }
-            }
             try{
                 isPausedFuture.get();
             }catch(Exception e){
                 e.printStackTrace();
             }
-            synchronized (stepCursor) {
                 synchronized (checkpointLock) {
                     dpLogManager.stepCursor().advance();
 //                    System.out.println("emit tuple: "+element+" when step = "+ dpLogManager.stepCursor().getCursor());
@@ -443,24 +438,20 @@ public class StreamSourceContexts {
                     }
                     processAndCollect(element);
                 }
-            }
         }
 
         @Override
         public void collectWithTimestamp(T element, long timestamp) {
-            synchronized (stepCursor) {
                 synchronized (checkpointLock) {
                     if (dpLogManager.isEnabled()) {
                         dpLogManager.recoverControl();
                     }
                 }
-            }
             try{
                 isPausedFuture.get();
             }catch(Exception e){
                 e.printStackTrace();
             }
-            synchronized (stepCursor) {
                 synchronized (checkpointLock) {
                     dpLogManager.stepCursor().advance();
 //                    System.out.println("emit tuple: " + element + " when step = " + dpLogManager
@@ -475,25 +466,21 @@ public class StreamSourceContexts {
 
                     processAndCollectWithTimestamp(element, timestamp);
                 }
-            }
         }
 
         @Override
         public void emitWatermark(Watermark mark) {
             if (allowWatermark(mark)) {
-                synchronized (stepCursor) {
                     synchronized (checkpointLock) {
                         if (dpLogManager.isEnabled()) {
                             dpLogManager.recoverControl();
                         }
                     }
-                }
                 try{
                     isPausedFuture.get();
                 }catch(Exception e){
                     e.printStackTrace();
                 }
-                synchronized (stepCursor) {
                     synchronized (checkpointLock) {
                         dpLogManager.stepCursor().advance();
                         System.out.println("emit watermark: "+mark+" when step = "+ dpLogManager.stepCursor().getCursor());
@@ -507,7 +494,6 @@ public class StreamSourceContexts {
 
                         processAndEmitWatermark(mark);
                     }
-                }
             }
         }
 

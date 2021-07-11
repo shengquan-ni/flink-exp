@@ -66,7 +66,7 @@ public abstract class AbstractStreamTaskNetworkInput<
     private R currentRecordDeserializer = null;
     private DataLogManager dataLogManager = null;
     private int dataLogToken;
-    private Object stepCursor;
+    private Object checkpointLock;
 
     public AbstractStreamTaskNetworkInput(
             CheckpointedInputGate checkpointedInputGate,
@@ -92,7 +92,8 @@ public abstract class AbstractStreamTaskNetworkInput<
             this.dataLogToken = dataLogManager.registerInput(this::processElement, checkpointedInputGate::handleEvent);
             this.dataLogManager = dataLogManager;
             checkpointedInputGate.attachDataLogManager(dataLogToken, dataLogManager);
-            this.stepCursor = dataLogManager.stepCursor();
+            this.checkpointLock = dataLogManager.getCheckpointLock();
+            System.out.println("stream input of "+Thread.currentThread().getName()+" : "+checkpointLock);
         }
     }
 
@@ -119,8 +120,16 @@ public abstract class AbstractStreamTaskNetworkInput<
                     }
                     if(dataLogManager.isEnabled()){
                         int ret;
-                        synchronized (stepCursor) {
-                           ret = dataLogManager.inputData(
+                        if(checkpointLock != null) {
+                            synchronized (checkpointLock) {
+                                ret = dataLogManager.inputData(
+                                        dataLogToken,
+                                        lastChannel,
+                                        deserializationDelegate.getInstance(),
+                                        output);
+                            }
+                        }else{
+                            ret = dataLogManager.inputData(
                                     dataLogToken,
                                     lastChannel,
                                     deserializationDelegate.getInstance(),
@@ -152,7 +161,11 @@ public abstract class AbstractStreamTaskNetworkInput<
                     }
                     if(dataLogManager.isEnabled()){
                         int ret;
-                        synchronized (stepCursor){
+                        if(checkpointLock != null){
+                            synchronized (checkpointLock){
+                                ret = dataLogManager.inputEvent(dataLogToken,bufferOrEvent.get().getChannelInfo(), bufferOrEvent.get());
+                            }
+                        }else{
                             ret = dataLogManager.inputEvent(dataLogToken,bufferOrEvent.get().getChannelInfo(), bufferOrEvent.get());
                         }
                         if(ret == DataLogManager.PROCESSED_EVENT()){
@@ -168,7 +181,11 @@ public abstract class AbstractStreamTaskNetworkInput<
             } else {
                 if(dataLogManager.isEnabled()){
                     int ret;
-                    synchronized (stepCursor){
+                    if(checkpointLock != null) {
+                        synchronized (checkpointLock) {
+                            ret = dataLogManager.recoverUpstream();
+                        }
+                    }else{
                         ret = dataLogManager.recoverUpstream();
                     }
                     if(ret == DataLogManager.PROCESSED_EVENT()){

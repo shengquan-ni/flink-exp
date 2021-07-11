@@ -27,6 +27,13 @@ class DataLogManager(logWriter: AsyncLogWriter, val stepCursor: StepCursor) exte
   private var recordCount = 0
   private var lastBuffer:BufferOrEvent = _
 
+  private var checkpointLock:AnyRef = _
+
+  def setCheckpointLock(obj:AnyRef): Unit = {
+    checkpointLock = obj
+  }
+
+  def getCheckpointLock:AnyRef = checkpointLock
   def getName:String = logWriter.storage.name
 
   logWriter.storage.getLogs.foreach {
