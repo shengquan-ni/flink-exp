@@ -79,9 +79,9 @@ public class StreamSQLTestProgram {
 
         ParameterTool params = ParameterTool.fromArgs(new String[] {
                 "--classloader.check-leaked-classloader","false",
-                "--state_backend.checkpoint_directory", "file:///home/shengqun97/",
+                "--state_backend.checkpoint_directory", "file:///home/12198/",
                 "--hdfs-log-storage","hdfs://10.128.0.5:8020/",
-                "--enable-logging","true",
+                "--enable-logging","false",
                 "--print-level", "0"});
 
         String outputPath = "./";

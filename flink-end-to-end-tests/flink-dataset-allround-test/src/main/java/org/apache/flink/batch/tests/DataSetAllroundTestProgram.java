@@ -61,8 +61,8 @@ public class DataSetAllroundTestProgram {
 
         // get parameters
         ParameterTool params = ParameterTool.fromArgs(args);
-        int loadFactor = Integer.parseInt(params.getRequired("loadFactor"));
-        String outputPath = params.getRequired("outputPath");
+        int loadFactor = 10;
+        String outputPath = "file:///home/12198/batch-output";
         boolean infinite = params.getBoolean("infinite", false);
 
         ExecutionEnvironment env = ExecutionEnvironment.getExecutionEnvironment();
@@ -70,14 +70,14 @@ public class DataSetAllroundTestProgram {
         int numKeys = loadFactor * 128 * 1024;
         DataSet<Tuple2<String, Integer>> x1Keys;
         DataSet<Tuple2<String, Integer>> x2Keys =
-                env.createInput(Generator.generate(numKeys * 32, 2)).setParallelism(4);
+                env.createInput(Generator.generate(numKeys * 32, 2)).setParallelism(2);
         DataSet<Tuple2<String, Integer>> x8Keys =
-                env.createInput(Generator.generate(numKeys, 8)).setParallelism(4);
+                env.createInput(Generator.generate(numKeys, 8)).setParallelism(2);
 
         if (infinite) {
-            x1Keys = env.createInput(Generator.generateInfinitely(numKeys)).setParallelism(4);
+            x1Keys = env.createInput(Generator.generateInfinitely(numKeys)).setParallelism(2);
         } else {
-            x1Keys = env.createInput(Generator.generate(numKeys, 1)).setParallelism(4);
+            x1Keys = env.createInput(Generator.generate(numKeys, 1)).setParallelism(2);
         }
 
         DataSet<Tuple2<String, Integer>> joined =
