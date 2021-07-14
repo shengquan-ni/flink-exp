@@ -8,7 +8,7 @@ import org.apache.hadoop.fs.{FileSystem, Path}
 
 class HDFSLogStorage(logName: String, hdfsIP: String) extends FileLogStorage(logName) {
 
-  val hdfs: FileSystem = RecoveryUtils.getHDFS(hdfsIP)
+  lazy val hdfs: FileSystem = RecoveryUtils.getHDFS(hdfsIP)
 
   private lazy val path = new Path(s"./logs/$logName.log")
 

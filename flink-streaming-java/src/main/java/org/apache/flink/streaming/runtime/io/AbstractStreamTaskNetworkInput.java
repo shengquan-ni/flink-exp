@@ -93,7 +93,7 @@ public abstract class AbstractStreamTaskNetworkInput<
             this.dataLogManager = dataLogManager;
             checkpointedInputGate.attachDataLogManager(dataLogToken, dataLogManager);
             this.checkpointLock = dataLogManager.getCheckpointLock();
-            System.out.println("stream input of "+Thread.currentThread().getName()+" : "+checkpointLock);
+            //System.out.println("stream input of "+Thread.currentThread().getName()+" : "+checkpointLock);
         }
     }
 

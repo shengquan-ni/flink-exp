@@ -269,7 +269,7 @@ public abstract class StreamTask<OUT, OP extends StreamOperator<OUT>> extends Ab
     private Long syncSavepointId = null;
     private Long activeSyncSavepointId = null;
     private long latestAsyncCheckpointStartDelayNanos;
-
+    private Timer timer = new Timer();
     private final CompletableFuture<Void> terminationFuture = new CompletableFuture<>();
 
     public AsyncLogWriter writer;
@@ -361,16 +361,6 @@ public abstract class StreamTask<OUT, OP extends StreamOperator<OUT>> extends Ab
         if(globalArgs.containsKey("enable-logging")){
             RecoveryUtils.isEnabled = Boolean.parseBoolean(globalArgs.get("enable-logging"));
             System.out.println("enable-logging = "+globalArgs.get("enable-logging"));
-            if(System.getProperty("control-delay") != null) {
-                Timer timer = new Timer();
-                timer.schedule(new TimerTask() {
-                    @Override
-                    public void run() {
-                        mainMailboxExecutor.execute(() -> {
-                        }, "example-control");
-                    }
-                }, 1000, Integer.parseInt(System.getProperty("control-delay")));
-            }
             if(RecoveryUtils.isEnabled) {
                 if(globalArgs.containsKey("storage-type")) {
                     String t = globalArgs.get("storage-type");
@@ -395,16 +385,7 @@ public abstract class StreamTask<OUT, OP extends StreamOperator<OUT>> extends Ab
             if(System.getProperty("enableLogging")!=null && System.getProperty("enableLogging").equals("true")){
                 RecoveryUtils.isEnabled = true;
                 System.out.println("enableLogging = true");
-                if(System.getProperty("controlDelay") != null) {
-                    Timer timer = new Timer();
-                    timer.schedule(new TimerTask() {
-                        @Override
-                        public void run() {
-                            mainMailboxExecutor.execute(() -> {
-                            }, "example-control");
-                        }
-                    }, 1000, Integer.parseInt(System.getProperty("controlDelay")));
-                }
+
                 if(storage instanceof EmptyLogStorage){
                     if(System.getProperty("storageType") != null) {
                         String t = System.getProperty("storageType");
@@ -444,6 +425,29 @@ public abstract class StreamTask<OUT, OP extends StreamOperator<OUT>> extends Ab
         this.actionExecutor = Preconditions.checkNotNull(actionExecutor);
         this.mailboxProcessor = new MailboxProcessor(this::processInput, mailbox, actionExecutor, environment.getTaskInfo().getTaskNameWithSubtasks());
         this.mainMailboxExecutor = mailboxProcessor.getMainMailboxExecutor();
+        if(globalArgs.get("control-delay") != null) {
+            timer.schedule(new TimerTask() {
+                @Override
+                public void run() {
+                    if(mailbox.getState().isAcceptingMails()){
+                        mainMailboxExecutor.execute(() -> {
+                        }, "exp");
+                    }
+                }
+            }, 1000, Integer.parseInt(globalArgs.get("control-delay")));
+        }else{
+            if(System.getProperty("controlDelay") != null) {
+                timer.schedule(new TimerTask() {
+                    @Override
+                    public void run() {
+                        if(mailbox.getState().isAcceptingMails()){
+                            mainMailboxExecutor.execute(() -> {
+                            }, "exp");
+                        }
+                    }
+                }, 1000, Integer.parseInt(System.getProperty("controlDelay")));
+            }
+        }
         this.asyncExceptionHandler = new StreamTaskAsyncExceptionHandler(environment);
         this.asyncOperationsThreadPool =
                 Executors.newCachedThreadPool(
@@ -496,7 +500,7 @@ public abstract class StreamTask<OUT, OP extends StreamOperator<OUT>> extends Ab
             mailboxProcessor.isPaused = false;
             isPausedFuture.set();
         });
-        mailResolver.bind("example-control", () ->{});
+        mailResolver.bind("exp", () ->{});
 
 //        mailResolver.bind("checkpoint complete", (x)-> {notifyCheckpointComplete((long)x[0]);});
 //
@@ -537,6 +541,7 @@ public abstract class StreamTask<OUT, OP extends StreamOperator<OUT>> extends Ab
 
     @Override
     public CompletableFuture<?> shutdown() {
+        timer.cancel();
         return writer.shutdown();
     }
 

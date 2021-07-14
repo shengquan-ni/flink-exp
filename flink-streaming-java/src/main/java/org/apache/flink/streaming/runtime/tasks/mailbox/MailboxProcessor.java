@@ -154,7 +154,7 @@ public class MailboxProcessor implements Closeable {
     public void registerLogManager(DPLogManager dpLogManager){
         this.dpLogManager = dpLogManager;
         this.checkpointLock = dpLogManager.getCheckpointLock();
-        System.out.println("mailbox of "+Thread.currentThread().getName()+" : "+checkpointLock);
+        //System.out.println("mailbox of "+Thread.currentThread().getName()+" : "+checkpointLock);
     }
 
     /**

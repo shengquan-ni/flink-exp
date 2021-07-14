@@ -80,8 +80,10 @@ public class StreamSQLTestProgram {
         ParameterTool params = ParameterTool.fromArgs(new String[] {
                 "--classloader.check-leaked-classloader","false",
                 "--state_backend.checkpoint_directory", "file:///home/shengqun97/",
-                "--hdfs-log-storage","hdfs://10.128.0.5:8020/",
+                "--hdfs-log-storage","hdfs://35.227.165.124:8020/",
+                "--storage-type","hdfs",
                 "--enable-logging","true",
+                "--control-delay","1000",
                 "--print-level", "0"});
 
         String outputPath = "./";
