@@ -64,4 +64,8 @@ class MemoryStorage(logName: String) extends AbstractLogStorage(logName)  {
   override def getLoggedWindows: Array[tuple.Tuple2[java.lang.Long, java.lang.Long]] = loggedWindows.toArray
 
   override def getLoggedTimers: Array[tuple.Tuple2[java.lang.Long, java.lang.Long]] = loggedTimers.toArray
+
+  override def truncateLog(): Unit = {
+    clear()
+  }
 }
