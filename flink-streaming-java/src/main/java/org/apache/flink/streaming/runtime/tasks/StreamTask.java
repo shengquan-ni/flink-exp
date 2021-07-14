@@ -120,6 +120,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.OptionalLong;
+import java.util.Timer;
+import java.util.TimerTask;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionException;
 import java.util.concurrent.ExecutorService;
@@ -359,6 +361,16 @@ public abstract class StreamTask<OUT, OP extends StreamOperator<OUT>> extends Ab
         if(globalArgs.containsKey("enable-logging")){
             RecoveryUtils.isEnabled = Boolean.parseBoolean(globalArgs.get("enable-logging"));
             System.out.println("enable-logging = "+globalArgs.get("enable-logging"));
+            if(System.getProperty("control-delay") != null) {
+                Timer timer = new Timer();
+                timer.schedule(new TimerTask() {
+                    @Override
+                    public void run() {
+                        mainMailboxExecutor.execute(() -> {
+                        }, "example-control");
+                    }
+                }, 1000, Integer.parseInt(System.getProperty("control-delay")));
+            }
             if(RecoveryUtils.isEnabled) {
                 if(globalArgs.containsKey("storage-type")) {
                     String t = globalArgs.get("storage-type");
@@ -383,6 +395,16 @@ public abstract class StreamTask<OUT, OP extends StreamOperator<OUT>> extends Ab
             if(System.getProperty("enableLogging")!=null && System.getProperty("enableLogging").equals("true")){
                 RecoveryUtils.isEnabled = true;
                 System.out.println("enableLogging = true");
+                if(System.getProperty("controlDelay") != null) {
+                    Timer timer = new Timer();
+                    timer.schedule(new TimerTask() {
+                        @Override
+                        public void run() {
+                            mainMailboxExecutor.execute(() -> {
+                            }, "example-control");
+                        }
+                    }, 1000, Integer.parseInt(System.getProperty("controlDelay")));
+                }
                 if(storage instanceof EmptyLogStorage){
                     if(System.getProperty("storageType") != null) {
                         String t = System.getProperty("storageType");
@@ -474,6 +496,7 @@ public abstract class StreamTask<OUT, OP extends StreamOperator<OUT>> extends Ab
             mailboxProcessor.isPaused = false;
             isPausedFuture.set();
         });
+        mailResolver.bind("example-control", () ->{});
 
 //        mailResolver.bind("checkpoint complete", (x)-> {notifyCheckpointComplete((long)x[0]);});
 //
