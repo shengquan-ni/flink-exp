@@ -68,6 +68,8 @@ abstract class FileLogStorage(logName: String) extends AbstractLogStorage(logNam
 
   def deleteFile(): Unit
 
+  createDirectories()
+
   private var output = new ByteArrayWriter(getOutputStream)
 
   private val globalSerializer = SerializeUtils.getSerializer
@@ -104,7 +106,6 @@ abstract class FileLogStorage(logName: String) extends AbstractLogStorage(logNam
   }
 
   override def getLogs: Iterable[LogRecord] = {
-    createDirectories()
     // read file
     if (!fileExists) {
       Iterable.empty

@@ -13,10 +13,11 @@ class LocalDiskLogStorage(name:String) extends FileLogStorage(name) {
 
   override def getInputStream: DataInputStream = new DataInputStream(Files.newInputStream(path))
 
-  override def getOutputStream: DataOutputStream =
+  override def getOutputStream: DataOutputStream = {
     new DataOutputStream(
       Files.newOutputStream(path, StandardOpenOption.CREATE, StandardOpenOption.APPEND)
     )
+  }
 
   override def fileExists: Boolean = Files.exists(path)
 
